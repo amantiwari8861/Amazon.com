@@ -1,2 +1,2 @@
 # Amazon.com
-enhance version of amazon.com in spring boot
+enhanced version of amazon.com in spring boot
