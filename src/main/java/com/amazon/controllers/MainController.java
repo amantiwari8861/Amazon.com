@@ -22,23 +22,25 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.amazon.models.entities.Product;
 import com.amazon.repositories.ProductRepo;
+import com.amazon.services.ProductService;
 
 @Controller
 public class MainController 
 {
     @Autowired
     private ProductRepo productRepo;
+    @Autowired
+    private ProductService productService;
     
     @RequestMapping(value="/", method=RequestMethod.GET)
     public String index() 
     {
-        return "index";
+        return "views/index.jsp";
     }
-    @RequestMapping(value="/error", method=RequestMethod.GET)
-    public ModelAndView error() 
+    @RequestMapping(value="/error1", method=RequestMethod.GET)
+    public String error() 
     {
-        // return "redirect:/html/error404.html";
-        return new ModelAndView("redirect:" + "/html/error404.html");
+        return "/html/error404.html";
     }
     @GetMapping("/images/{imageName}")
     public ResponseEntity<Resource> renderImage(@PathVariable String imageName) throws IOException
@@ -57,7 +59,7 @@ public class MainController
                 e.printStackTrace();
             }
             Product product=new Product();
-            String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+            // String fileName = StringUtils.cleanPath(file.getOriginalFilename());
             System.out.println("uploading...");
             try {
                 product.setImage(file.getBytes());
@@ -65,31 +67,31 @@ public class MainController
                 e.printStackTrace();
             }
             if(productRepo.save(product)!=null)
-            return "redirect:/CreateProduct.jsp?msg=Image uploaded successfully!";
+            return "redirect:/CreateProduct?msg=Image uploaded successfully!";
             else
-            return "redirect:/CreateProduct.jsp?msg=Error uploading image.";
+            return "redirect:/CreateProduct?msg=Error uploading image.";
     }
     @GetMapping(value="/product/add")
-    public String addProduct(Model model) {
+    public String addProduct(Model model) 
+    {
         model.addAttribute("product", new Product());
         return "CreateProduct";
     }
     
 
-    // @GetMapping("/getDetail/{id}")
-    // public String getDbDetils(@PathVariable String id, Model model) {
-    //     try {
-    //         logger.info("Id= " + id);
-    //         MyModel imagesObj = myService.getImages(Long.parseLong(id));
-    //         model.addAttribute("id", imagesObj.getId());
-    //         model.addAttribute("name", imagesObj.getName());
-    //         byte[] encode = java.util.Base64.getEncoder().encode(imagesObj.getImage());
-    //         model.addAttribute("image", new String(encode, "UTF-8"));
-    //         return "imagedetails";
-    //     } catch (Exception e) {
-    //         logger.error("Error", e);
-    //         model.addAttribute("message", "Error in getting image");
-    //         return "redirect:/";
-    //     }
-    // }
+    @GetMapping(value="/product/getimage/{id}")
+    public String getImage(@PathVariable String id,Model model) 
+    {
+        try {
+            byte[] image=productService.getImage(Integer.parseInt(id));
+            byte[] encode = java.util.Base64.getEncoder().encode(image);
+            model.addAttribute("image", new String(encode, "UTF-8"));
+            return "ShowProduct";
+        } 
+        catch (Exception e) 
+        {
+            model.addAttribute("message", "Error in getting image");
+            return "redirect:/";
+        }
+    }
 }

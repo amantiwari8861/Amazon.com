@@ -7,7 +7,7 @@
 </head>
 <body>
     <h2>Add Product</h2>
-   
+   ${param.msg}
     <form action="upload/" method="post" enctype="multipart/form-data" >
         <label for="id">Product Id:</label>
         <input type="text" name="pId" required>
